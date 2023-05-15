@@ -1,4 +1,4 @@
-# Discrete Event Simulation Example
+# Discrete Event Simulation Example - Mohammed Fahad Senior Design Project 1
 
 This repository contains both the Python logic for running
 simulations as well as the HTML5 canvas-based visualization.
