@@ -1,48 +1,50 @@
+import pandas as pd
 import numpy as np
-from tensorflow.keras.preprocessing.text import Tokenizer
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.utils import to_categorical
 
-# Example data
-texts = df['msg_tx'].tolist()  # Assuming 'df' is your DataFrame containing the messages
-labels = df['outage_indicator'].tolist()
+# Assuming you have already preprocessed your text data and loaded it into a DataFrame called df
+# df should contain 'msg_tx' column for messages and 'outage_indicator' column for labels
 
-# Tokenize the text data
+# Step 1: Tokenize the text data and encode the labels
+# Tokenization
+messages = df['msg_tx'].values
+
+# Encode labels
+encoder = LabelEncoder()
+labels = encoder.fit_transform(df['outage_indicator'].values)
+
+# Step 2: Split the dataset into training and testing sets
+messages_train, messages_test, labels_train, labels_test = train_test_split(messages, labels, test_size=0.2, random_state=42)
+
+# Step 3: Convert text data into numerical features
+# Convert text data into a bag-of-words representation
+vectorizer = CountVectorizer()
+X_train_counts = vectorizer.fit_transform(messages_train)
+
+# Convert raw frequency counts into TF-IDF (Term Frequency-Inverse Document Frequency) values
+tfidf_transformer = TfidfTransformer()
+X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+
+# Step 4: Padding sequences (assuming you're using LSTM)
+# Find the maximum length of messages
+max_len = max(len(message.split()) for message in messages_train)
+
+# Tokenize and pad sequences
 tokenizer = Tokenizer()
-tokenizer.fit_on_texts(texts)
+tokenizer.fit_on_texts(messages_train)
+sequences_train = tokenizer.texts_to_sequences(messages_train)
+sequences_test = tokenizer.texts_to_sequences(messages_test)
 
-# Convert text data to sequences of integers
-sequences = tokenizer.texts_to_sequences(texts)
+X_train = pad_sequences(sequences_train, maxlen=max_len)
+X_test = pad_sequences(sequences_test, maxlen=max_len)
 
-# Pad sequences to ensure uniform length
-max_seq_length = 100  # Choose a suitable maximum sequence length based on your data
-padded_sequences = pad_sequences(sequences, maxlen=max_seq_length, padding='post')
+# Step 5: Convert labels into categorical format
+y_train = to_categorical(labels_train)
+y_test = to_categorical(labels_test)
 
-# Load pre-trained word embeddings (e.g., GloVe embeddings)
-# Download GloVe embeddings from: https://nlp.stanford.edu/projects/glove/
-embedding_dim = 100  # Adjust the embedding dimension based on the chosen pre-trained embeddings
-embedding_index = {}
-with open('glove.6B.100d.txt', encoding='utf-8') as f:
-    for line in f:
-        values = line.split()
-        word = values[0]
-        coefs = np.asarray(values[1:], dtype='float32')
-        embedding_index[word] = coefs
-
-# Create embedding matrix
-word_index = tokenizer.word_index
-num_words = len(word_index) + 1
-embedding_matrix = np.zeros((num_words, embedding_dim))
-for word, i in word_index.items():
-    if i < num_words:
-        embedding_vector = embedding_index.get(word)
-        if embedding_vector is not None:
-            embedding_matrix[i] = embedding_vector
-
-# Alternatively, you can use pre-trained embeddings provided by Keras
-# from tensorflow.keras.layers import Embedding
-# embedding_layer = Embedding(num_words, embedding_dim, embeddings_initializer='glorot_uniform',
-#                             input_length=max_seq_length, trainable=False)
-
-# Now, 'padded_sequences' contains the tokenized and padded sequences,
-# and 'embedding_matrix' contains the corresponding word embeddings.
-# You can use these as input features for training your LSTM model.
+# Now, you can proceed to train your LSTM model using X_train, y_train, X_test, and y_test
+# Make sure to define your LSTM model architecture and train it accordingly
