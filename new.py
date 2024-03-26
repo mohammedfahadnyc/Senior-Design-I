@@ -1,50 +1,29 @@
 import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.utils import to_categorical
+from sklearn.model_selection import train_test_split
 
-# Assuming you have already preprocessed your text data and loaded it into a DataFrame called df
-# df should contain 'msg_tx' column for messages and 'outage_indicator' column for labels
+# Load the dataset (assuming 'df' is your DataFrame)
+# Example: df = pd.read_csv('your_dataset.csv')
 
-# Step 1: Tokenize the text data and encode the labels
-# Tokenization
-messages = df['msg_tx'].values
+# Preprocessing: Assuming 'msg_tx' and 'outage_indicator' are the columns in the DataFrame
+text_data = df['msg_tx']
+labels = df['outage_indicator']
 
-# Encode labels
-encoder = LabelEncoder()
-labels = encoder.fit_transform(df['outage_indicator'].values)
+# Feature Engineering: TF-IDF Vectorization
+tfidf_vectorizer = TfidfVectorizer(max_features=10000)  # Adjust max_features as needed
+tfidf_matrix = tfidf_vectorizer.fit_transform(text_data)
+tfidf_matrix_dense = tfidf_matrix.toarray()
 
-# Step 2: Split the dataset into training and testing sets
-messages_train, messages_test, labels_train, labels_test = train_test_split(messages, labels, test_size=0.2, random_state=42)
+# Label Encoding
+label_encoder = LabelEncoder()
+encoded_labels = label_encoder.fit_transform(labels)
 
-# Step 3: Convert text data into numerical features
-# Convert text data into a bag-of-words representation
-vectorizer = CountVectorizer()
-X_train_counts = vectorizer.fit_transform(messages_train)
+# Train-Test Split
+X_train, X_test, y_train, y_test = train_test_split(tfidf_matrix_dense, encoded_labels, test_size=0.2, random_state=42)
 
-# Convert raw frequency counts into TF-IDF (Term Frequency-Inverse Document Frequency) values
-tfidf_transformer = TfidfTransformer()
-X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
-
-# Step 4: Padding sequences (assuming you're using LSTM)
-# Find the maximum length of messages
-max_len = max(len(message.split()) for message in messages_train)
-
-# Tokenize and pad sequences
-tokenizer = Tokenizer()
-tokenizer.fit_on_texts(messages_train)
-sequences_train = tokenizer.texts_to_sequences(messages_train)
-sequences_test = tokenizer.texts_to_sequences(messages_test)
-
-X_train = pad_sequences(sequences_train, maxlen=max_len)
-X_test = pad_sequences(sequences_test, maxlen=max_len)
-
-# Step 5: Convert labels into categorical format
-y_train = to_categorical(labels_train)
-y_test = to_categorical(labels_test)
-
-# Now, you can proceed to train your LSTM model using X_train, y_train, X_test, and y_test
-# Make sure to define your LSTM model architecture and train it accordingly
+# Display shapes of the training and testing sets
+print("Shape of X_train:", X_train.shape)
+print("Shape of X_test:", X_test.shape)
+print("Shape of y_train:", y_train.shape)
+print("Shape of y_test:", y_test.shape)
