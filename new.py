@@ -17,3 +17,29 @@ svm_predicted = svm_model.predict(X_test_flatten.numpy())
 # Calculate accuracy
 svm_accuracy = accuracy_score(y_test_tensor.numpy(), svm_predicted)
 print(f'SVM Accuracy: {svm_accuracy:.4f}')
+
+
+
+from sklearn.metrics import classification_report, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Evaluate the SVM model
+svm_predicted = svm_model.predict(X_test_flatten)
+
+# Calculate accuracy
+svm_accuracy = accuracy_score(y_test_tensor.numpy(), svm_predicted)
+print(f'SVM Accuracy: {svm_accuracy:.4f}')
+
+# Classification report
+print("SVM Classification Report:")
+print(classification_report(y_test_tensor.numpy(), svm_predicted))
+
+# Confusion matrix
+svm_cm = confusion_matrix(y_test_tensor.numpy(), svm_predicted)
+plt.figure(figsize=(8, 6))
+sns.heatmap(svm_cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.title('SVM Confusion Matrix')
+plt.show()
