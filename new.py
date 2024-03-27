@@ -46,25 +46,18 @@ for name, classifier in classifiers.items():
     classifier.fit(X_train, y_train)
     trained_models[name] = classifier
 
-# Function to evaluate and print results
+# Function to evaluate and return results as string
 def evaluate_model(model, X_test, y_test):
     predicted = model.predict(X_test)
     accuracy = accuracy_score(y_test, predicted)
-    print(f'{model.__class__.__name__} Accuracy: {accuracy:.4f}')
-    print(f'{model.__class__.__name__} Classification Report:')
-    print(classification_report(y_test, predicted))
-    cm = confusion_matrix(y_test, predicted)
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
-    plt.xlabel('Predicted Labels')
-    plt.ylabel('True Labels')
-    plt.title(f'{model.__class__.__name__} Confusion Matrix')
-    plt.show()
+    report = classification_report(y_test, predicted)
+    return accuracy, report
 
 # Evaluate trained models
+results = {}
 for name, model in trained_models.items():
-    print(f"Evaluation results for {name}:")
-    evaluate_model(model, X_test, y_test)
+    accuracy, report = evaluate_model(model, X_test, y_test)
+    results[name] = (accuracy, report)
 
 # Load updated data
 updated_df = pd.read_csv("updated.csv")  # Adjust filename as needed
@@ -79,6 +72,18 @@ for name, model in trained_models.items():
     model.partial_fit(updated_count_matrix, updated_labels)
 
 # Evaluate updated models
+updated_results = {}
 for name, model in trained_models.items():
-    print(f"Updated evaluation results for {name}:")
-    evaluate_model(model, updated_count_matrix, updated_labels)
+    updated_accuracy, updated_report = evaluate_model(model, updated_count_matrix, updated_labels)
+    updated_results[name] = (updated_accuracy, updated_report)
+
+# Display results side by side
+for name in results.keys():
+    print(f"Model: {name}")
+    print("Original Accuracy:", results[name][0])
+    print("Original Classification Report:")
+    print(results[name][1])
+    print("Updated Accuracy:", updated_results[name][0])
+    print("Updated Classification Report:")
+    print(updated_results[name][1])
+    print("\n")
