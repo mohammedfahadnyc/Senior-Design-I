@@ -1,45 +1,23 @@
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score
+from sklearn.feature_extraction.text import CountVectorizer
 
-# Initialize the SVM model
-svm_model = SVC(kernel='linear', C=1.0)
+# Preprocessing: Assuming 'msg_tx' is the text data
+text_data = df['msg_tx']
+labels = df['outage_indicator']
 
-# Flatten the input tensors for SVM
-X_train_flatten = X_train_tensor.view(X_train_tensor.size(0), -1)
-X_test_flatten = X_test_tensor.view(X_test_tensor.size(0), -1)
+# Feature Engineering: CountVectorizer
+count_vectorizer = CountVectorizer(max_features=10000)  # Adjust max_features as needed
+count_matrix = count_vectorizer.fit_transform(text_data)
+count_matrix_dense = count_matrix.toarray()
 
-# Train the SVM model
-svm_model.fit(X_train_flatten.numpy(), y_train_tensor.numpy())
+# Label Encoding
+label_encoder = LabelEncoder()
+encoded_labels = label_encoder.fit_transform(labels)
 
-# Predict on the testing data
-svm_predicted = svm_model.predict(X_test_flatten.numpy())
+# Train-Test Split
+X_train_svm, X_test_svm, y_train_svm, y_test_svm = train_test_split(count_matrix_dense, encoded_labels, test_size=0.2, random_state=42)
 
-# Calculate accuracy
-svm_accuracy = accuracy_score(y_test_tensor.numpy(), svm_predicted)
-print(f'SVM Accuracy: {svm_accuracy:.4f}')
-
-
-
-from sklearn.metrics import classification_report, confusion_matrix
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-# Evaluate the SVM model
-svm_predicted = svm_model.predict(X_test_flatten)
-
-# Calculate accuracy
-svm_accuracy = accuracy_score(y_test_tensor.numpy(), svm_predicted)
-print(f'SVM Accuracy: {svm_accuracy:.4f}')
-
-# Classification report
-print("SVM Classification Report:")
-print(classification_report(y_test_tensor.numpy(), svm_predicted))
-
-# Confusion matrix
-svm_cm = confusion_matrix(y_test_tensor.numpy(), svm_predicted)
-plt.figure(figsize=(8, 6))
-sns.heatmap(svm_cm, annot=True, fmt='d', cmap='Blues', cbar=False)
-plt.xlabel('Predicted Labels')
-plt.ylabel('True Labels')
-plt.title('SVM Confusion Matrix')
-plt.show()
+# Display shapes of the training and testing sets for SVM
+print("Shape of X_train_svm:", X_train_svm.shape)
+print("Shape of X_test_svm:", X_test_svm.shape)
+print("Shape of y_train_svm:", y_train_svm.shape)
+print("Shape of y_test_svm:", y_test_svm.shape)
