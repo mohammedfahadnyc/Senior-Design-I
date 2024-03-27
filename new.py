@@ -1,23 +1,19 @@
-from sklearn.metrics import classification_report, confusion_matrix
-import seaborn as sns
-import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
 
-# Evaluate the model
-with torch.no_grad():
-    outputs = model(X_test_tensor)
-    _, predicted = torch.max(outputs, 1)
-    accuracy = (predicted == y_test_tensor).sum().item() / len(y_test_tensor)
-    print(f'Accuracy: {accuracy:.4f}')
+# Initialize the SVM model
+svm_model = SVC(kernel='linear', C=1.0)
 
-    # Calculate precision, recall, and F1-score
-    print("Classification Report:")
-    print(classification_report(y_test_tensor.numpy(), predicted.numpy()))
+# Flatten the input tensors for SVM
+X_train_flatten = X_train_tensor.view(X_train_tensor.size(0), -1)
+X_test_flatten = X_test_tensor.view(X_test_tensor.size(0), -1)
 
-    # Visualize the confusion matrix
-    cm = confusion_matrix(y_test_tensor.numpy(), predicted.numpy())
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
-    plt.xlabel('Predicted Labels')
-    plt.ylabel('True Labels')
-    plt.title('Confusion Matrix')
-    plt.show()
+# Train the SVM model
+svm_model.fit(X_train_flatten.numpy(), y_train_tensor.numpy())
+
+# Predict on the testing data
+svm_predicted = svm_model.predict(X_test_flatten.numpy())
+
+# Calculate accuracy
+svm_accuracy = accuracy_score(y_test_tensor.numpy(), svm_predicted)
+print(f'SVM Accuracy: {svm_accuracy:.4f}')
