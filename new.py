@@ -1,27 +1,27 @@
-from sklearn.linear_model import Perceptron
+from sklearn.linear_model import SGDClassifier
 
-# Initialize the Perceptron classifier
-perceptron_classifier = Perceptron()
+# Initialize the SGD classifier
+sgd_classifier = SGDClassifier()
 
-# Train the Perceptron classifier
-perceptron_classifier.fit(X_train_rf, y_train_rf)
+# Train the SGD classifier
+sgd_classifier.fit(X_train_rf, y_train_rf)
 
 # Predict on the testing data
-perceptron_predicted = perceptron_classifier.predict(X_test_rf)
+sgd_predicted = sgd_classifier.predict(X_test_rf)
 
 # Calculate accuracy
-perceptron_accuracy = accuracy_score(y_test_rf, perceptron_predicted)
-print(f'Perceptron Accuracy: {perceptron_accuracy:.4f}')
+sgd_accuracy = accuracy_score(y_test_rf, sgd_predicted)
+print(f'SGD Classifier Accuracy: {sgd_accuracy:.4f}')
 
 # Classification report
-print("Perceptron Classification Report:")
-print(classification_report(y_test_rf, perceptron_predicted))
+print("SGD Classifier Classification Report:")
+print(classification_report(y_test_rf, sgd_predicted))
 
 # Confusion matrix
-perceptron_cm = confusion_matrix(y_test_rf, perceptron_predicted)
+sgd_cm = confusion_matrix(y_test_rf, sgd_predicted)
 plt.figure(figsize=(8, 6))
-sns.heatmap(perceptron_cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+sns.heatmap(sgd_cm, annot=True, fmt='d', cmap='Blues', cbar=False)
 plt.xlabel('Predicted Labels')
 plt.ylabel('True Labels')
-plt.title('Perceptron Confusion Matrix')
+plt.title('SGD Classifier Confusion Matrix')
 plt.show()
