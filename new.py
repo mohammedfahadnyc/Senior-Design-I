@@ -1,36 +1,58 @@
-# Load the new dataset
-new_df = pd.read_csv('b.csv')  # Replace 'b.csv' with the actual filename/path
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Assuming df is your DataFrame with 'msg_tx' and 'outage_indicator' columns
+# Create a DataFrame (Replace this with your actual data loading process)
+data = {
+    'msg_tx': ['text data 1', 'text data 2', 'text data 3', 'text data 4'],
+    'outage_indicator': ['indicator 1', 'indicator 2', 'indicator 1', 'indicator 2']
+}
+df = pd.DataFrame(data)
 
 # Preprocessing: Assuming 'msg_tx' is the text data
-new_text_data = new_df['msg_tx']
-new_labels = new_df['outage_indicator']
+text_data = df['msg_tx']
+labels = df['outage_indicator']
 
 # Feature Engineering: CountVectorizer
-count_matrix_new = count_vectorizer.transform(new_text_data)
-count_matrix_dense_new = count_matrix_new.toarray()
+count_vectorizer = CountVectorizer(max_features=10000)  # Adjust max_features as needed
+count_matrix = count_vectorizer.fit_transform(text_data)
+count_matrix_dense = count_matrix.toarray()
 
 # Label Encoding
-encoded_labels_new = label_encoder.transform(new_labels)
+label_encoder = LabelEncoder()
+encoded_labels = label_encoder.fit_transform(labels)
 
-# Update the existing Random Forest classifier with new data
-rf_classifier.partial_fit(count_matrix_dense_new, encoded_labels_new)
+# Train-Test Split
+X_train_rf, X_test_rf, y_train_rf, y_test_rf = train_test_split(count_matrix_dense, encoded_labels, test_size=0.2, random_state=42)
 
-# Predict on the testing data for new data
-rf_predicted_new = rf_classifier.predict(X_test_rf_new)
+# Initialize the Bernoulli Naive Bayes classifier
+bnb_classifier = BernoulliNB()
 
-# Calculate accuracy for new data
-rf_accuracy_new = accuracy_score(y_test_rf_new, rf_predicted_new)
-print(f'Updated Random Forest Accuracy: {rf_accuracy_new:.4f}')
+# Train the Bernoulli Naive Bayes classifier
+bnb_classifier.fit(X_train_rf, y_train_rf)
 
-# Classification report for new data
-print("Updated Random Forest Classification Report:")
-print(classification_report(y_test_rf_new, rf_predicted_new))
+# Predict on the testing data
+bnb_predicted = bnb_classifier.predict(X_test_rf)
 
-# Confusion matrix for new data
-rf_cm_new = confusion_matrix(y_test_rf_new, rf_predicted_new)
+# Calculate accuracy
+bnb_accuracy = accuracy_score(y_test_rf, bnb_predicted)
+print(f'Bernoulli Naive Bayes Accuracy: {bnb_accuracy:.4f}')
+
+# Classification report
+print("Bernoulli Naive Bayes Classification Report:")
+print(classification_report(y_test_rf, bnb_predicted))
+
+# Confusion matrix
+bnb_cm = confusion_matrix(y_test_rf, bnb_predicted)
 plt.figure(figsize=(8, 6))
-sns.heatmap(rf_cm_new, annot=True, fmt='d', cmap='Blues', cbar=False)
+sns.heatmap(bnb_cm, annot=True, fmt='d', cmap='Blues', cbar=False)
 plt.xlabel('Predicted Labels')
 plt.ylabel('True Labels')
-plt.title('Updated Random Forest Confusion Matrix')
+plt.title('Bernoulli Naive Bayes Confusion Matrix')
 plt.show()
