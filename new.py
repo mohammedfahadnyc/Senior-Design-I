@@ -1,21 +1,19 @@
-import pandas as pd
-import nlpaug.augmenter.word as naw
+from imblearn.over_sampling import ADASYN
+from sklearn.utils import shuffle
 
-# Assuming combined_df is your DataFrame with 'msg_tx' and 'outage_indicator' columns
+# Assuming your combined DataFrame is named 'combined_df'
+# Separate features (X) and target variable (y)
+X = combined_df.drop(columns=['outage_indicator'])
+y = combined_df['outage_indicator']
 
-# Initialize the augmentation method
-augmenter = naw.ContextualWordEmbsAug(model_path='bert-base-uncased', action="insert")
+# Apply ADASYN to generate synthetic samples
+adasyn = ADASYN()
+X_resampled, y_resampled = adasyn.fit_resample(X, y)
 
-# Augment each class separately
-augmented_data = []
-for class_label in combined_df['outage_indicator'].unique():
-    class_data = combined_df[combined_df['outage_indicator'] == class_label]['msg_tx']
-    augmented_samples = augmenter.augment(class_data)
-    augmented_data.extend([(text, class_label) for text in augmented_samples])
+# Combine original and synthetic samples
+balanced_df = pd.concat([pd.DataFrame(X_resampled, columns=X.columns), pd.Series(y_resampled, name='outage_indicator')], axis=1)
 
-# Create a new DataFrame with augmented data
-augmented_df = pd.DataFrame(augmented_data, columns=['msg_tx', 'outage_indicator'])
+# Optionally, shuffle the dataset
+balanced_df = shuffle(balanced_df)
 
-# Now augmented_df contains the augmented dataset
-columns
-# 
+# Now 'balanced_df' contains a balanced dataset with ADASYN applied
