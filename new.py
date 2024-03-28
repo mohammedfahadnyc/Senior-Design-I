@@ -1,27 +1,59 @@
+
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import Perceptron, PassiveAggressiveClassifier
 from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.linear_model import Perceptron, PassiveAggressiveClassifier
 
-# Load the trained models
-perceptron_model = Perceptron()
-pa_model = PassiveAggressiveClassifier()
+# Load your actual data (Replace this with your actual data loading process)
+df = pd.read_csv("your_data.csv")  # Adjust filename as needed
 
-# Load the 15 day dataset from Excel
-train_data_15_days = pd.read_excel("train_data_15_days.xlsx")  # Adjust filename as needed
+# Preprocessing: Assuming 'msg_tx' is the text data and 'outage_indicator' is the target variable
+text_data = df['msg_tx']
+labels = df['outage_indicator']
 
-# Preprocess the text data
-text_data = train_data_15_days['msg_tx']
-
-# Recreate the CountVectorizer with the same parameters
+# Feature Engineering: CountVectorizer
 count_vectorizer = CountVectorizer(max_features=10000)  # Adjust max_features as needed
+count_matrix = count_vectorizer.fit_transform(text_data)
+count_matrix_dense = count_matrix.toarray()
 
-# Fit and transform the text data using the CountVectorizer
-count_matrix_dense = count_vectorizer.fit_transform(text_data).toarray()
+# Label Encoding
+label_encoder = LabelEncoder()
+encoded_labels = label_encoder.fit_transform(labels)
 
-# Assign pseudo labels using each model
-train_data_15_days['pseudo_label_perceptron'] = perceptron_model.predict(count_matrix_dense)
-train_data_15_days['pseudo_label_pa'] = pa_model.predict(count_matrix_dense)
+# Train-Test Split
+X_train, X_test, y_train, y_test = train_test_split(count_matrix_dense, encoded_labels, test_size=0.2, random_state=42)
 
-# Now train_data_15_days contains pseudo labels assigned by each model in separate columns
+# Initialize classifiers
+classifiers = {
+    "Perceptron": Perceptron(),
+    "Passive Aggressive Classifier": PassiveAggressiveClassifier()
+}
+
+# Train classifiers
+trained_models = {}
+for name, classifier in classifiers.items():
+    classifier.fit(X_train, y_train)
+    trained_models[name] = classifier
+
+# Function to evaluate and return results as string
+def evaluate_model(model, X_test, y_test):
+    predicted = model.predict(X_test)
+    accuracy = accuracy_score(y_test, predicted)
+    report = classification_report(y_test, predicted)
+    return accuracy, report
+
+# Evaluate trained models
+results = {}
+for name, model in trained_models.items():
+    accuracy, report = evaluate_model(model, X_test, y_test)
+    results[name] = (accuracy, report)
+
+# Display results
+for name, (accuracy, report) in results.items():
+    print(f"Model: {name}")
+    print("Accuracy:", accuracy)
+    print("Classification Report:")
+    print(report)
+    print("\n")
