@@ -11,14 +11,14 @@ pa_model = PassiveAggressiveClassifier()
 # Load the 15 day dataset from Excel
 train_data_15_days = pd.read_excel("train_data_15_days.xlsx")  # Adjust filename as needed
 
-# Load the CountVectorizer from the Perceptron model
-count_vectorizer = perceptron_model.named_steps['vectorizer']
-
 # Preprocess the text data
 text_data = train_data_15_days['msg_tx']
 
-# Transform the text data using the loaded CountVectorizer
-count_matrix_dense = count_vectorizer.transform(text_data).toarray()
+# Recreate the CountVectorizer with the same parameters
+count_vectorizer = CountVectorizer(max_features=10000)  # Adjust max_features as needed
+
+# Fit and transform the text data using the CountVectorizer
+count_matrix_dense = count_vectorizer.fit_transform(text_data).toarray()
 
 # Assign pseudo labels using each model
 train_data_15_days['pseudo_label_perceptron'] = perceptron_model.predict(count_matrix_dense)
