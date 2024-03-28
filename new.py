@@ -1,3 +1,18 @@
+
+from sklearn.externals import joblib
+
+# Assuming rf_model, perceptron_model, and pa_model are your trained models
+
+# Save the Random Forest model
+joblib.dump(rf_model, "random_forest_model.pkl")
+
+# Save the Perceptron model
+joblib.dump(perceptron_model, "perceptron_model.pkl")
+
+# Save the Passive Aggressive model
+joblib.dump(pa_model, "passive_aggressive_model.pkl")
+
+
 import pandas as pd
 from sklearn.externals import joblib
 
