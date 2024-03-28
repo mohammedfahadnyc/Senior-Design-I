@@ -1,16 +1,20 @@
 
-from sklearn.externals import joblib
+import pickle
 
 # Assuming rf_model, perceptron_model, and pa_model are your trained models
 
 # Save the Random Forest model
-joblib.dump(rf_model, "random_forest_model.pkl")
+with open("random_forest_model.pkl", "wb") as f:
+    pickle.dump(rf_model, f)
 
 # Save the Perceptron model
-joblib.dump(perceptron_model, "perceptron_model.pkl")
+with open("perceptron_model.pkl", "wb") as f:
+    pickle.dump(perceptron_model, f)
 
 # Save the Passive Aggressive model
-joblib.dump(pa_model, "passive_aggressive_model.pkl")
+with open("passive_aggressive_model.pkl", "wb") as f:
+    pickle.dump(pa_model, f)
+
 
 
 import pandas as pd
