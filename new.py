@@ -1,70 +1,27 @@
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.linear_model import Perceptron, PassiveAggressiveClassifier
 
-# Load your actual data (Replace this with your actual data loading process)
-df = pd.read_csv("your_data.csv")  # Adjust filename as needed
+def predict_labels(strings, trained_models, count_vectorizer):
+    """
+    Predict labels for a list of strings using trained models.
 
-# Preprocessing: Assuming 'msg_tx' is the text data and 'outage_indicator' is the target variable
-text_data = df['msg_tx']
-labels = df['outage_indicator']
+    Args:
+    strings (list): List of strings to predict labels for.
+    trained_models (dict): Dictionary containing trained models.
+    count_vectorizer: CountVectorizer used for feature extraction.
 
-# Feature Engineering: CountVectorizer
-count_vectorizer = CountVectorizer(max_features=10000)  # Adjust max_features as needed
-count_matrix = count_vectorizer.fit_transform(text_data)
-count_matrix_dense = count_matrix.toarray()
+    Returns:
+    None
+    """
+    for string in strings:
+        # Transform the string using the CountVectorizer
+        string_count_matrix = count_vectorizer.transform([string])
+        string_count_matrix_dense = string_count_matrix.toarray()
 
-# Label Encoding
-label_encoder = LabelEncoder()
-encoded_labels = label_encoder.fit_transform(labels)
+        # Predict labels using each trained model
+        for name, model in trained_models.items():
+            # Predict label
+            predicted_label = model.predict(string_count_matrix_dense)[0]
+            print(f"String: {string} | Predicted Label ({name}): {predicted_label}")
 
-# Train-Test Split
-X_train, X_test, y_train, y_test = train_test_split(count_matrix_dense, encoded_labels, test_size=0.2, random_state=42)
-
-# Initialize classifiers
-classifiers = {
-    "Perceptron": Perceptron(),
-    "Passive Aggressive Classifier": PassiveAggressiveClassifier()
-}
-
-# Train classifiers
-trained_models = {}
-for name, classifier in classifiers.items():
-    classifier.fit(X_train, y_train)
-    trained_models[name] = classifier
-
-# Load another dataset for partial fitting (Replace this with your actual data loading process)
-updated_df = pd.read_csv("updated.csv")  # Adjust filename as needed
-
-# Preprocess updated data
-updated_text_data = updated_df['msg_tx']
-updated_labels = updated_df['outage_indicator']
-updated_count_matrix = count_vectorizer.transform(updated_text_data)
-
-# Partial fit on updated data
-for name, model in trained_models.items():
-    model.partial_fit(updated_count_matrix, updated_labels)
-
-# Function to evaluate and return results as string
-def evaluate_model(model, X_test, y_test):
-    predicted = model.predict(X_test)
-    accuracy = accuracy_score(y_test, predicted)
-    report = classification_report(y_test, predicted)
-    return accuracy, report
-
-# Evaluate trained models
-results = {}
-for name, model in trained_models.items():
-    accuracy, report = evaluate_model(model, X_test, y_test)
-    results[name] = (accuracy, report)
-
-# Display results
-for name, (accuracy, report) in results.items():
-    print(f"Model: {name}")
-    print("Accuracy:", accuracy)
-    print("Classification Report:")
-    print(report)
-    print("\n")
+# Example usage:
+strings_to_predict = ["example string 1", "example string 2", "example string 3"]
+predict_labels(strings_to_predict, trained_models, count_vectorizer)
