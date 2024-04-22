@@ -27,6 +27,10 @@ predict_labels(strings_to_predict, trained_models, count_vectorizer)
 
 
 const urlRegex = /^(https?:\/\/)?([\w-]+\.)*[\w-]+(\.[a-z]{2,})(:\d{1,5})?(\/\S*)?$/i;
+const urlRegex = /^(\w+:\/\/|\/)\S*$/i;
+
+
+
 
 const urlRegex = /^(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:(?!-)[A-Z\d-]{1,63}(?<!-)\.?)+(?:[A-Z]{2,63}|(?:com|org|net|...)\b)(?:\/\S*)?$/i;
 const urlRegex = /^(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:(?!-)[A-Z\d-]{1,63}(?<!-)\.?)+(?:[A-Z]{2,63}|(?:com|org|net|...)\b)(?:\/\S*)?$/i;
