@@ -27,6 +27,9 @@ predict_labels(strings_to_predict, trained_models, count_vectorizer)
 
 
 const urlRegex = /^(https?:\/\/)?([\w-]+\.)*[\w-]+(\.[a-z]{2,})(:\d{1,5})?(\/\S*)?$/i;
+const urlRegex = /^(?:(?:https?:\/\/)?|(?:www\.)?)[\w-]+(?:\.[\w-]+)+(?:\:\d{1,5})?(?:\/\S*)?$/i;
+
+
 const urlRegex = /^(\w+:\/\/|\/)\S*$/i;
 
 
