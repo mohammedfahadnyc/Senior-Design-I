@@ -24,3 +24,27 @@ def predict_labels(strings, trained_models, count_vectorizer):
 # Example usage:
 strings_to_predict = ["example string 1", "example string 2", "example string 3"]
 predict_labels(strings_to_predict, trained_models, count_vectorizer)
+
+
+const urlRegex = /^(https?:\/\/)?([\w-]+\.)*[\w-]+(\.[a-z]{2,})(:\d{1,5})?(\/\S*)?$/i;
+
+function isURL(str) {
+    return urlRegex.test(str);
+}
+
+// Test cases
+const urls = [
+    "https://www.example.com",
+    "http://subdomain.example.com",
+    "ftp://example.com",
+    "www.example.com",
+    "example.com",
+    "https://example.com:8080/path",
+    "http://sub.example.com/path/to/page.html",
+    "https://sub.example.com:8080/path/to/page.html?query=string",
+    "not_a_url"
+];
+
+urls.forEach(url => {
+    console.log(`${url} is a URL: ${isURL(url)}`);
+});
