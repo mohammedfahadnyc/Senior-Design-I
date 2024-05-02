@@ -59,6 +59,64 @@ const urls = [
     "not_a_url"
 ];
 
+
+
+
+
+
+
+
+fun updateRequestLogger(updateRequest: UpdateRequest, prevGolink: Golink?){
+        val previousCreatedBy: String? =
+            if (!updateRequest.createdBy.isNullOrEmpty()) {
+                prevGolink?.createdBy
+            } else {
+                ""
+            }
+        val previousCoOwner : String?=
+            if((!updateRequest.coOwner.isNullOrEmpty())) {
+                prevGolink?.coOwner
+            }
+            else {
+                ""
+            }
+        val previousName : String?=
+            if((!updateRequest.name.isNullOrEmpty())) {
+                prevGolink?.name
+            }
+            else {
+                ""
+            }
+        val previousUrl : String?=
+            if((!updateRequest.url.isNullOrEmpty())) {
+                prevGolink?.url
+            }
+            else {
+                ""
+            }
+        logger.info { "Updated GoLink with id: ${updateRequest.id}" }
+
+        if (previousCreatedBy?.isNotEmpty() == true && previousCreatedBy != updateRequest.createdBy) {
+            logger.info { "Updated GoLink owner from ${previousCreatedBy} to ${updateRequest.createdBy}." }
+        }
+        // Log when the co-owner of the golink has been added
+        if (previousCoOwner?.isEmpty() == true  && previousCoOwner != updateRequest.coOwner) {
+            logger.info { "Added GoLink co-owner : ${updateRequest.coOwner}." }
+        }
+        // Log when the co-owner of the golink has changed
+        if (previousCoOwner?.isNotEmpty() == true && previousCoOwner != updateRequest.coOwner) {
+            logger.info { "Updated GoLink co-owner from ${previousCoOwner} to ${updateRequest.coOwner}." }
+        }
+        // Log when the name of the golink has changed
+        if (previousName?.isNotEmpty() == true  && previousName != updateRequest.name) {
+            logger.info { "Updated GoLink name from ${previousName} to ${updateRequest.name}." }
+        }
+        // Log when the url of the golink has changed
+        if (previousUrl?.isNotEmpty() == true && previousUrl != updateRequest.url) {
+            logger.info { "Updated GoLink url from ${previousUrl} to ${updateRequest.url}." }
+        }
+    }
+
 urls.forEach(url => {
     console.log(`${url} is a URL: ${isURL(url)}`);
 });
