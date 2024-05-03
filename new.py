@@ -65,55 +65,70 @@ const urls = [
 
 
 
+import org.apache.log4j.AppenderSkeleton
+import org.apache.log4j.Level
+import org.apache.log4j.Logger
+import org.apache.log4j.spi.LoggingEvent
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RequestLoggerTest {
 
     @Test
     fun testCreateRequestLogger() {
-        // Mock logger implementation
-        val logger: Logger = object : Logger {
-            val loggedMessages = mutableListOf<String>()
-            override fun info(message: String) {
-                loggedMessages.add(message)
-            }
-        }
+        val appender = TestAppender()
+        val logger = Logger.getRootLogger()
+        logger.addAppender(appender)
 
-        // Call the function with the mock logger
         val createRequest = CreateRequest("John Doe", listOf("Jane Smith"))
-        createRequestLogger(123, createRequest, logger)
+        createRequestLogger(123, createRequest)
 
-        // Verify the logged message
-        assertEquals("Successfully created GoLink with id 123, Owner is John Doe, Co-owner(s): Jane Smith.", logger.loggedMessages.first())
+        val loggedMessages = appender.getLog()
+
+        assertTrue(loggedMessages.isNotEmpty())
+
+        val firstLogEntry = loggedMessages.first()
+        assertEquals(Level.INFO, firstLogEntry.level)
+        assertEquals("Successfully created GoLink with id 123, Owner is John Doe, Co-owner(s): Jane Smith.", firstLogEntry.message)
     }
 
     @Test
     fun testUpdateRequestLogger() {
-        // Mock logger implementation
-        val logger: Logger = object : Logger {
-            val loggedMessages = mutableListOf<String>()
-            override fun info(message: String) {
-                loggedMessages.add(message)
-            }
-        }
+        val appender = TestAppender()
+        val logger = Logger.getRootLogger()
+        logger.addAppender(appender)
 
-        // Call the function with the mock logger
         val updateRequest = UpdateRequest("Jane Smith")
         val prevGolink = Golink("John Doe")
-        updateRequestLogger(updateRequest, prevGolink, logger)
+        updateRequestLogger(updateRequest, prevGolink)
 
-        // Verify the logged message
-        assertEquals("Updated GoLink owner from John Doe to Jane Smith.", logger.loggedMessages.first())
+        val loggedMessages = appender.getLog()
+
+        assertTrue(loggedMessages.isNotEmpty())
+
+        val firstLogEntry = loggedMessages.first()
+        assertEquals(Level.INFO, firstLogEntry.level)
+        assertEquals("Updated GoLink owner from John Doe to Jane Smith.", firstLogEntry.message)
+    }
+}
+
+class TestAppender : AppenderSkeleton() {
+    private val log = mutableListOf<LoggingEvent>()
+
+    override fun requiresLayout(): Boolean {
+        return false
     }
 
-    interface Logger {
-        fun info(message: String)
+    override fun append(loggingEvent: LoggingEvent) {
+        log.add(loggingEvent)
     }
 
-    data class CreateRequest(val createdBy: String, val coOwner: List<String>)
-    data class UpdateRequest(val createdBy: String)
-    data class Golink(val owner: String)
+    override fun close() {}
+
+    fun getLog(): List<LoggingEvent> {
+        return log.toList()
+    }
 }
 
 
