@@ -65,20 +65,57 @@ const urls = [
 
 
 
-fun updateRequestLogger(updateRequest: UpdateRequest, prevGolink: Golink?) {
-    val logChange: (String, String?, String?) -> Unit = { field, oldValue, newValue ->
-        if (oldValue != newValue) {
-            logger.info { "Updated GoLink $field from ${oldValue ?: ""} to ${newValue ?: ""}." }
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class RequestLoggerTest {
+
+    @Test
+    fun testCreateRequestLogger() {
+        // Mock logger implementation
+        val logger: Logger = object : Logger {
+            val loggedMessages = mutableListOf<String>()
+            override fun info(message: String) {
+                loggedMessages.add(message)
+            }
         }
+
+        // Call the function with the mock logger
+        val createRequest = CreateRequest("John Doe", listOf("Jane Smith"))
+        createRequestLogger(123, createRequest, logger)
+
+        // Verify the logged message
+        assertEquals("Successfully created GoLink with id 123, Owner is John Doe, Co-owner(s): Jane Smith.", logger.loggedMessages.first())
     }
 
-    logger.info { "Updated GoLink with id: ${updateRequest.id}" }
+    @Test
+    fun testUpdateRequestLogger() {
+        // Mock logger implementation
+        val logger: Logger = object : Logger {
+            val loggedMessages = mutableListOf<String>()
+            override fun info(message: String) {
+                loggedMessages.add(message)
+            }
+        }
 
-    logChange("owner", prevGolink?.createdBy, updateRequest.createdBy)
-    logChange("co-owner", prevGolink?.coOwner, updateRequest.coOwner)
-    logChange("name", prevGolink?.name, updateRequest.name)
-    logChange("url", prevGolink?.url, updateRequest.url)
+        // Call the function with the mock logger
+        val updateRequest = UpdateRequest("Jane Smith")
+        val prevGolink = Golink("John Doe")
+        updateRequestLogger(updateRequest, prevGolink, logger)
+
+        // Verify the logged message
+        assertEquals("Updated GoLink owner from John Doe to Jane Smith.", logger.loggedMessages.first())
+    }
+
+    interface Logger {
+        fun info(message: String)
+    }
+
+    data class CreateRequest(val createdBy: String, val coOwner: List<String>)
+    data class UpdateRequest(val createdBy: String)
+    data class Golink(val owner: String)
 }
+
 
 
 
