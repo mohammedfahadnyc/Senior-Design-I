@@ -131,6 +131,10 @@ class TestAppender : AppenderSkeleton() {
     }
 }
 
+Updated\sGoLink\s(?:with\s(?:id|owner|co-owner|name|url):\s\d+|name\sfrom\s\w+\sto\s\w+)
+val regex = Regex("""Updated\sGoLink\s(?:with\s(?:id|owner|co-owner|name|url):\s\d+|name\sfrom\s\w+\sto\s\w+)""")
+
+
 
 
 
