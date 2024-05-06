@@ -136,6 +136,8 @@ val regex = Regex("""Updated\sGoLink\s(?:with\s(?:id|owner|co-owner|name|url):\s
 
 
 
+val regex = Regex("""(?<=\[TYPE=INFO\sDATE=\d{2}/\d{2}/\d{4}\sTIME=\d{2}:\d{2}:\d{2}\.\d{3}\sLOGGER=Logger\]\s-\s)(.*?)(?=\[)""")
+
 
 
 
